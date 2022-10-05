@@ -1,0 +1,193 @@
+categories:
+  - dispenser 
+  - ringbinder
+  - plate
+  - brush
+  - sponge 
+  - tube 
+  - can 
+  - mug 
+  - big_tool 
+  - small_ball 
+  - big_ball 
+  - small_tool 
+  - small_cube 
+  - glass 
+  - box 
+  - wallet 
+  - long_fruit 
+
+instances:
+  - 019_pitcher_base
+  - 006_mustard_bottle
+  - 029_plate
+  - 010_potted_meat_can
+  - 025_mug
+  - 048_hammer
+  - 033_spatula
+  - 018_plum
+  - 055_baseball
+  - 011_banana
+  - 037_scissors    
+  - 031_spoon
+  - 040_large_marker
+  - 001_chips_can  # TODO chips can
+  - red_wood_block  # TODO
+  # - red_cube # TODO
+  #- 021_bleach_cleanser
+  #- 026_sponge
+  #- maglia_ringbinder
+  #- orange_brush
+
+  - black_dispenser
+  - brown_ringbinder
+  - cyan_plate
+  - orange_plate
+  - white_plate
+  - blue_brush
+  - inverted_color_abrasive_sponge
+  - colors
+  - white_mug
+  - strawberry
+  - tennis_ball
+  - shap_ball
+  - fork
+  - knife
+  - yellow_cube
+  - magenta_glass
+  - yellow_glass
+  - pudding
+  - cracker_box
+  - mellin
+  - sweet_years_wallet
+  - leather_wallet
+
+category_to_instances:
+  dispenser:
+    - 019_pitcher_base
+    - 006_mustard_bottle
+    - black_dispenser
+    - bleach
+  ringbinder:
+    - maglia_ringbinder
+    - brown_ringbinder
+  plate:
+    - cyan_plate
+    - orange_plate
+    - white_plate
+    - 029_plate
+  brush:
+    - orange_brush
+    - blue_brush
+  sponge:
+    - abrasive_sponge
+    - inverted_color_abrasive_sponge
+  tube:
+    - pringles
+    - colors
+  can:
+    - 010_potted_meat_can
+  mug:
+    - 025_mug
+    - white_mug
+  big_tool:
+    - 048_hammer
+    - 033_spatula
+    - paintbrush
+  small_ball:
+    - 018_plum
+    - strawberry
+  big_ball:
+    - tennis_ball
+    - 055_baseball
+    - shap_ball
+    - ball
+  small_tool:
+    - 031_spoon
+    - 040_large_marker
+    - 037_scissors
+    - fork
+    - knife
+  small_cube:
+    - red_cube
+    - yellow_cube
+  glass:
+    - magenta_glass
+    - yellow_glass
+  box:
+    - pudding
+    - cracker_box
+    - mellin
+  wallet:
+    - sweet_years_wallet
+    - leather_wallet
+  long_fruit:
+    - 011_banana
+
+grasp_types:
+  - adducted_thumb
+  - large_diameter
+  - small_diameter
+  - medium_wrap
+  - power_disk
+  - sphere_4fingers
+  - power_sphere
+  - extension_type
+  - prismatic_3fingers
+  - prismatic_4fingers
+  - precision_sphere
+  - tripod
+  - prismatic_2fingers
+
+preshapes:
+  - lateral_no3
+  - power_no3
+  - pinch_no3
+  - pinch_3
+
+grasptype_to_preshape:
+  adducted_thumb: lateral_no3
+  large_diameter: power_no3
+  small_diameter: power_no3
+  medium_wrap: power_no3
+  power_disk: power_no3
+  sphere_4fingers: power_no3
+  power_sphere: power_no3
+  extension_type: pinch_no3
+  prismatic_3fingers: pinch_no3
+  prismatic_4fingers: pinch_no3
+  precision_sphere: pinch_no3
+  tripod: pinch_3
+  prismatic_2fingers: pinch_3
+
+metadatas:
+  approach:
+    - 0
+    - 30
+    - 60
+
+  elevation:
+    - 10
+    - 45
+    - 70
+
+single_preshape_instances:
+  - 029_plate
+  - pringles
+  - 010_potted_meat_can
+  - 048_hammer
+  - 018_plum
+  - 055_baseball
+  - 031_spoon
+  - 040_large_marker
+  - red_cube
+
+multi_preshapes_instances:
+  - 019_pitcher_base
+  - 006_mustard_bottle
+  - 025_mug
+  - 033_spatula
+  - 011_banana
+  - 037_scissors
+
+

@@ -1,6 +1,7 @@
 import os
 import glob
 import random
+import pathlib
 
 import numpy as np
 import torch
@@ -67,7 +68,7 @@ class SingleSourceImageDataset(Dataset):
                         self._instance_and_preshape_2_videos_path[inst][prsh] = (0, [])
 
                 for video_path in videos_iterator:
-                    folders = video_path.split('/')
+                    folders = pathlib.Path(video_path).parts
                     preshape = folders[-3]
                     instance = folders[-4]
                     category = folders[-5]

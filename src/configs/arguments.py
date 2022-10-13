@@ -209,13 +209,13 @@ def check_args(args):
             RAISE_VALUE_ERROR_STRING.format(args.source, '--source', SOURCE)
         )
 
-    if args.train_test_split_size <= 0 or args.train_test_split_size >= 1:
+    if args.train_test_split_size < 0 or args.train_test_split_size > 1:
         raise ValueError(
             'Wrong value for --train_test_split_size argument: it must be in'
             'range (0, 1)'
         )
 
-    if args.val_test_split_size <= 0 or args.val_test_split_size >= 1:
+    if args.val_test_split_size < 0 or args.val_test_split_size > 1:
         raise ValueError(
             'Wrong value for --val_test_split_size argument: it must be in'
             'range (0, 1)'

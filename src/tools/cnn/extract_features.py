@@ -4,7 +4,13 @@ python3 src/tools/cnn/extract_features.py \
 --batch_size 1 --source Wrist_d435 \
 --input rgb --model cnn --dataset_type SingleSourceImage \
 --feature_extractor mobilenet_v2 --pretrain imagenet \
---dataset_name iHannesDataset
+--dataset_name iHannesDataset 
+python3 src/tools/cnn/extract_features.py \
+--batch_size 1 --source Wrist_d435 \
+--input rgb --model cnn --dataset_type SingleSourceImage \
+--feature_extractor mobilenet_v2 --pretrain imagenet \
+--dataset_name ycb_50samples --synthetic --train_test_split_size 1.0 \
+--val_test_split_size 1.0
 '''
 import sys
 import os
@@ -15,12 +21,12 @@ import pathlib
 import numpy as np
 import torch
 import torch.nn as nn
+from torchvision import transforms
 
 sys.path.append(os.getcwd())
-from src.utils.pipeline import load_dataset, load_model
+from src.utils.pipeline import load_dataset, load_model, MyCompose
 from src.configs.arguments import parse_args
 from src.configs.conf import BASE_DIR
-
 
 def main(args):
     if args.from_features:
@@ -46,7 +52,25 @@ def main(args):
     # The training transform has randomizations, we do not want them since we 
     # are extracting fixed features, therefore replace it with the test transform
     base_dataset = dataloader[phases[0]].dataset.dataset
-    base_dataset._transform['train'] = base_dataset._transform['test']
+    if args.pretrain == 'imagenet':
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+        resize_side_size = 256
+        crop_size = 224
+    else:
+        raise ValueError('Not yet implemented for --pretrain {}'
+                         .format(args.pretrain))
+    transform = None
+    if args.dataset_type == 'SingleSourceVideo':
+        transform = MyCompose([
+            transforms.Resize(resize_side_size),
+            transforms.CenterCrop(crop_size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
+        ])
+    else:
+        raise ValueError
+    base_dataset._transform['train'] = transform
 
     num_videos = 0
     for p in phases:
@@ -103,7 +127,7 @@ def main(args):
 
                     features_path = os.path.join(new_path, 'features.npy')
 
-                    np.save(features[sample_idx], features_path)
+                    np.save(features_path, features[sample_idx])
 
                     if args.verbose:
                         print('Saved features at {}'.format(features_path))

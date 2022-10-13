@@ -1,10 +1,10 @@
-from multiprocessing.managers import ValueProxy
 import torch
 import torch.nn as nn
 from torchvision import models
 
 
 class CNN_RNN(nn.Module):
+
     def __init__(self, args):
         super(CNN_RNN, self).__init__()
         self._feature_extractor = None

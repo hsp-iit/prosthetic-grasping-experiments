@@ -56,6 +56,7 @@ def show_video_predictions(scores,
                         color,
                         1)
 
-        cv2.imwrite(path_to_save_dir + '/' + str(idx) + '.jpg', open_cv_frame)
+        frame_path = os.path.join(path_to_save_dir, str(idx)+'.jpg')
+        cv2.imwrite(frame_path, open_cv_frame)
 
     print('. . . video saved at ' + os.path.join(path_to_save_dir))

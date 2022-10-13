@@ -19,6 +19,7 @@ from src.utils.stats import plot_histogram_grasp_types, \
     plot_matrix_instance_grasp_type_numvideos, \
     plot_matrix_instance_preshape_numvideos
 from src.configs.arguments import parse_args
+from src.configs.conf import BASE_DIR
 
 
 def main(args):
@@ -42,10 +43,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    BASE_DIR = 'iHannes_experiments'
-
     cur_base_dir = os.getcwd()
-    cur_base_dir = cur_base_dir.split('/')[-1]
+    cur_base_dir = os.path.basename(cur_base_dir)
     if cur_base_dir != BASE_DIR:
         raise Exception(
             'Wrong base dir, this file must be run from {} directory.'

@@ -17,6 +17,7 @@ import sys
 import os
 import time
 import copy
+import pathlib
 
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -29,7 +30,7 @@ from src.utils.pipeline import set_seed, load_dataset, load_model, \
     EarlyStopping
 from src.utils.metrics import perframe_mAP
 from src.configs.arguments import parse_args
-from src.configs import conf
+from src.configs.conf import BASE_DIR
 
 
 def main(args):
@@ -38,11 +39,13 @@ def main(args):
     # TODO: add image augmentation
     # TODO: add temporal augmentation
 
-    modelname_dir = __file__.split('/')[-2]
-    if args.model != modelname_dir:
+    p = pathlib.Path(__file__)
+    try:
+        p.parts.index(args.model)
+    except:
         raise ValueError(
             'Wrong pipeline launched: this pipeline is intended for --model=={}'
-            .format(modelname_dir)
+            .format(os.path.basename(__file__))
         )
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -68,7 +71,7 @@ def main(args):
     print('LOGGING METRICS AT: {}'.format(writer.log_dir))
 
     command = 'python3 ' + ' '.join(sys.argv)
-    with open(writer.log_dir + '/log.txt', 'w') as f:
+    with open(os.path.join(writer.log_dir, 'log.txt'), 'w') as f:
         f.write('--seed: {}\n'.format(args.seed))
         f.write('--train_test_split_seed: {}\n'.format(args.train_test_split_seed))
         f.write('--val_test_split_seed: {}\n'.format(args.val_test_split_seed))
@@ -149,6 +152,7 @@ def main(args):
         for phase in phases:
             is_training = True if phase == 'train' else False
             model.train(is_training)
+            dataloader[phase].dataset.dataset.train(is_training)
 
             with torch.set_grad_enabled(is_training):
                 for batch_idx, (frames, grasp_types, preshapes, instances, _, _) \
@@ -291,7 +295,7 @@ def main(args):
 
         if not args.suppress_epoch_print:
             print(log)
-        with open(writer.log_dir + '/log.txt', 'a+') as f:
+        with open(os.path.join(writer.log_dir, 'log.txt'), 'a+') as f:
             f.write(log + '\n')
 
         log = 'Epoch :{:<3} |'.format(epoch)
@@ -305,7 +309,7 @@ def main(args):
                 log += '{} AP: {:<3.4f}%   '\
                     .format(cls, mAP_results[phase]['AP'][cls] * 100)
             log += ' |\n{}'.format(''.ljust(12))
-        with open(writer.log_dir + '/log_mAP.txt', 'a+') as f:
+        with open(os.path.join(writer.log_dir, 'log_mAP.txt'), 'a+') as f:
             f.write(log + '\n')
 
         for phase in phases:
@@ -357,7 +361,7 @@ def main(args):
                   'loss not decreasing after {} epochs'.\
                   format(args.patience_earlystopping)
             print(log)
-            with open(writer.log_dir + '/log.txt', 'a+') as f:
+            with open(os.path.join(writer.log_dir, 'log.txt'), 'a+') as f:
                 f.write(log + '\n')
 
             break
@@ -368,15 +372,13 @@ def main(args):
                   best_val_video_accuracywobackgr,
                   best_epoch)
     print(log)
-    with open(writer.log_dir + '/log.txt', 'a+') as f:
+    with open(os.path.join(writer.log_dir, 'log.txt'), 'a+') as f:
         f.write(log)
 
 
 if __name__ == '__main__':
-    BASE_DIR = 'iHannes_experiments'
-
     cur_base_dir = os.getcwd()
-    cur_base_dir = cur_base_dir.split('/')[-1]
+    cur_base_dir = os.path.basename(cur_base_dir)
     if cur_base_dir != BASE_DIR:
         raise Exception(
             'Wrong base dir, this file must be run from {} directory.'

@@ -1,9 +1,9 @@
-from multiprocessing.sharedctypes import Value
 import torch.nn as nn
 from torchvision import models
 
 
 class CNN(nn.Module):
+
     def __init__(self, args):
         super(CNN, self).__init__()
         self._feature_extractor = None

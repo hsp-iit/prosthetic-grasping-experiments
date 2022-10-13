@@ -88,9 +88,10 @@ def plot_histogram_grasp_types(args, figsize=(6, 4), show_image=True):
             count += v
         plt.title('Phase: '+phase+',   tot. num. of videos: '+str(count))
         plt.tight_layout()
-        if not os.path.isdir('stats/histogram'):
-            os.makedirs('stats/histogram')
-        plt.savefig('stats/histogram/grasp_types_phase_'+phase+'.png')
+        hist_dir = os.path.join('stats', 'histogram')
+        if not os.path.isdir(hist_dir):
+            os.makedirs(hist_dir)
+        plt.savefig(os.path.join(hist_dir, 'grasp_types_phase_'+phase+'.png'))
         if show_image:
             plt.show()
         plt.close()
@@ -165,9 +166,10 @@ def plot_histogram_preshapes(args, figsize=(6, 4), show_image=True):
             count += v
         plt.title('Phase: '+phase+',   tot. num. of videos: '+str(count))
         plt.tight_layout()
-        if not os.path.isdir('stats/histogram'):
-            os.makedirs('stats/histogram')
-        plt.savefig('stats/histogram/preshapes_phase_'+phase+'.png')
+        hist_dir = os.path.join('stats', 'histogram')
+        if not os.path.isdir(hist_dir):
+            os.makedirs(hist_dir)
+        plt.savefig(os.path.join(hist_dir, 'preshapes_phase_'+phase+'.png'))
         if show_image:
             plt.show()
         plt.close()
@@ -242,9 +244,10 @@ def plot_histogram_instances(args, figsize=(6, 4), show_image=True):
             count += v
         plt.title('Phase: '+phase+',   tot. num. of videos: '+str(count))
         plt.tight_layout()
-        if not os.path.isdir('stats/histogram'):
-            os.makedirs('stats/histogram')
-        plt.savefig('stats/histogram/instances_phase_'+phase+'.png')
+        hist_dir = os.path.join('stats', 'histogram')
+        if not os.path.isdir(hist_dir):
+            os.makedirs(hist_dir)
+        plt.savefig(os.path.join(hist_dir, 'instances_phase_'+phase+'.png'))
         if show_image:
             plt.show()
         plt.close()
@@ -329,10 +332,11 @@ def plot_matrix_instance_grasp_type_numvideos(args,
         plt.xlabel('Instance')
         plt.ylabel('Grasp type')
 
-        if not os.path.isdir('stats/matrix'):
-            os.makedirs('stats/matrix')
+        matr_dir = os.path.join('stats', 'matrix')
+        if not os.path.isdir(matr_dir):
+            os.makedirs(matr_dir)
         plt.savefig(
-            'stats/matrix/instance_grasp_type_#videos_phase_' + phase + '.png',
+            os.path.join(matr_dir, 'instance_grasp_type_#videos_phase_'+phase+'.png'),
             dpi=fig.dpi
         )
         if show_image:
@@ -419,10 +423,11 @@ def plot_matrix_instance_preshape_numvideos(args,
         plt.xlabel('Instance')
         plt.ylabel('Preshape')
 
-        if not os.path.isdir('stats/matrix'):
-            os.makedirs('stats/matrix')
+        matr_dir = os.path.join('stats', 'matrix')
+        if not os.path.isdir(matr_dir):
+            os.makedirs(matr_dir)
         plt.savefig(
-            'stats/matrix/instance_preshape_#videos_phase_' + phase + '.png',
+            os.path.join(matr_dir, 'instance_preshape_#videos_phase_'+phase+'.png'),
             dpi=fig.dpi
         )
         if show_image:

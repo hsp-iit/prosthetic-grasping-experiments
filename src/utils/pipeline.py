@@ -18,6 +18,7 @@ from src.models.cnn import CNN
 
 
 class MyRandomCrop(transforms.RandomCrop):
+    
     '''
     This class is needed to perform the same random crop along all the frames of a video
     '''
@@ -48,6 +49,7 @@ class MyRandomCrop(transforms.RandomCrop):
 
 
 class MyCompose(transforms.Compose):
+
     def __init__(self, transforms):
         super(MyCompose, self).__init__(transforms)
 
@@ -219,7 +221,6 @@ def check_arguments_matching(path_to_argument_file, sys_argv):
                             +test_arg_2_value[arg].strip()+' at test time.')
 
 
-
 def temporal_augmentation(frames, grasp_types, preshapes, instances):
     NUM_FRAMES = frames.shape[1]
     assert frames.shape[1] == grasp_types.shape[1] == preshapes.shape[1] == \
@@ -307,6 +308,7 @@ The class below is taken from
 https://github.com/Bjarten/early-stopping-pytorch/blob/master/pytorchtools.py 
 """
 class EarlyStopping:
+    
     """Early stops the training if validation loss doesn't improve after a
     given patience."""
 

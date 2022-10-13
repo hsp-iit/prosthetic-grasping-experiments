@@ -1,8 +1,7 @@
-import copy
-
 import os
 import glob
 import random
+import pathlib
 
 import numpy as np
 import torch
@@ -12,6 +11,7 @@ from src.configs import conf
 
 
 class FeaturesSingleSourceVideoDataset(Dataset):
+
     def __init__(self, args):
         self._features_suffix = args.feature_extractor
         self._source = args.source
@@ -270,9 +270,13 @@ class FeaturesSingleSourceVideoDataset(Dataset):
 
         # Load features
         if self._input == 'rgb':
-            video_path_features = video_path.replace(
-                '/frames/', '/features/' + self._features_suffix + '/'
-            )
+            new_folders = os.path.join('features', self._features_suffix)
+            old_path = pathlib.Path(video_path)
+            index_to_replace = old_path.parts.index('frames')
+            video_path_features = os.path.join(*old_path.parts[:index_to_replace],
+                                               new_folders,
+                                               *old_path.parts[index_to_replace+1:])
+
             video_features = np.load(
                 os.path.join(video_path_features, 'features.npy')
             )

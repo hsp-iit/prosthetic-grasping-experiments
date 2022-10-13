@@ -7,11 +7,10 @@ python3 src/tools/cnn/eval_single_video.py --epochs 10 \
 --from_features --dataset_name iHannesDataset \
 --video_specs 019_pitcher_base,lateral_no3,rgb_00012 --show_perframe_preds
 '''
-import shutil
 import sys
 import os
-import time
 import glob
+import pathlib
 
 import numpy as np
 import torch.multiprocessing
@@ -26,6 +25,7 @@ sys.path.append(os.getcwd())
 from src.utils.pipeline import check_arguments_matching, set_seed, \
     load_model, check_arguments_matching
 from src.configs.arguments import parse_args
+from src.configs.conf import BASE_DIR
 
 
 def main(args):
@@ -53,11 +53,13 @@ def main(args):
     # REMEMBER that if you change args.dataset_name, you have to change
     # also args.dataset_base_folder accordingly, see src/configs/arguments.py
 
-    modelname_dir = __file__.split('/')[-2]
-    if args.model != modelname_dir:
+    p = pathlib.Path(__file__)
+    try:
+        p.parts.index(args.model)
+    except:
         raise ValueError(
             'Wrong pipeline launched: this pipeline is intended for --model=={}'
-            .format(modelname_dir)
+            .format(os.path.basename(__file__))
         )
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -120,9 +122,13 @@ def main(args):
         frames_path = glob.glob(os.path.join(video_path, '*.jpg'))
         frames_path.sort()
         if args.from_features:
-            video_path_features = video_path.replace(
-                '/frames/', '/features/' + args.feature_extractor + '/'
-            )
+            new_folders = os.path.join('features', args.feature_extractor)
+            old_path = pathlib.Path(video_path)
+            index_to_replace = old_path.parts.index('frames')
+            video_path_features = os.path.join(*old_path.parts[:index_to_replace],
+                                               new_folders,
+                                               *old_path.parts[index_to_replace+1:])
+            
             video_path_features = os.path.join(video_path_features,
                                                'features.npy')
             frames = np.load(video_path_features)
@@ -275,10 +281,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    BASE_DIR = 'iHannes_experiments'
-
     cur_base_dir = os.getcwd()
-    cur_base_dir = cur_base_dir.split('/')[-1]
+    cur_base_dir = os.path.basename(cur_base_dir)
     if cur_base_dir != BASE_DIR:
         raise Exception(
             'Wrong base dir, this file must be run from {} directory.'

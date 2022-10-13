@@ -19,6 +19,7 @@ import shutil
 import sys
 import os
 import time
+import pathlib
 
 import numpy as np
 import torch.multiprocessing
@@ -60,11 +61,13 @@ def main(args):
     # REMEMBER that if you change args.dataset_name, you have to change
     # also args.dataset_base_folder accordingly, see src/configs/arguments.py
 
-    modelname_dir = __file__.split('/')[-2]
-    if args.model != modelname_dir:
+    p = pathlib.Path(__file__)
+    try:
+        p.parts.index(args.model)
+    except:
         raise ValueError(
             'Wrong pipeline launched: this pipeline is intended for --model=={}'
-            .format(modelname_dir)
+            .format(os.path.basename(__file__))
         )
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -91,7 +94,7 @@ def main(args):
 
     dataloader = load_dataset(args)
 
-    with open(writer.log_dir + '/log.txt', 'w') as f:
+    with open(os.path.join(writer.log_dir, 'log.txt'), 'w') as f:
         f.write('--seed: {}\n'.format(args.seed))
         f.write('--train_test_split_seed: {}\n'.format(args.train_test_split_seed))
         f.write('--val_test_split_seed: {}\n'.format(args.val_test_split_seed))
@@ -120,6 +123,7 @@ def main(args):
     softmax = nn.Softmax(dim=1)
 
     model.eval()
+    dataloader['test'].dataset.dataset.eval()
     model = model.to(device)
     with torch.set_grad_enabled(False):
         accuracy = {granularity: 0 for granularity in ['perframe', 'video']}
@@ -262,7 +266,7 @@ def main(args):
 
         total_end = time.time()
         log = 'Running time: {:3.1f}s'.format(total_end - total_start)
-        with open(writer.log_dir + '/log.txt', 'a+') as f:
+        with open(os.path.join(writer.log_dir, 'log.txt'), 'a+') as f:
             print(log)
             f.write(log + '\n\n')
 
@@ -366,14 +370,12 @@ def main(args):
 
 
 if __name__ == '__main__':
-    BASE_DIR = 'iHannes_experiments'
-
     cur_base_dir = os.getcwd()
-    cur_base_dir = cur_base_dir.split('/')[-1]
-    if cur_base_dir != BASE_DIR:
+    cur_base_dir = os.path.basename(cur_base_dir)
+    if cur_base_dir != conf.BASE_DIR:
         raise Exception(
             'Wrong base dir, this file must be run from {} directory.'
-            .format(BASE_DIR)
+            .format(conf.BASE_DIR)
         )
 
     main(parse_args())

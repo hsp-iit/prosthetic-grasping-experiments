@@ -1,5 +1,5 @@
 data/iHannesDataset*
-data/labels_test_elisa_from_ground
+data/labels_from_ground
 data/real
 data/synthetic
 results
@@ -42,8 +42,5 @@ __pycache__
 src/tools/.ipynb_checkpoints/
 src/tools/Tutorial - images - Pytorch.ipynb
 src/tools/*/*/video/eval_single_video
-
-
-
 
 .idea

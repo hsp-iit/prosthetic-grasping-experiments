@@ -130,13 +130,13 @@ def parse_args():
                              ' only in src/tools/show_video_paths.py')
 
     parser.add_argument('--synthetic', default=False, action='store_true',
-                        help='If enabled, the model is trained on synthetic '
-                             'data, otherwise on real data')
+                        help='Enable it when the dataset specified via '
+                             '--dataset_name arguments is a synthetic dataset')
 
     parser.add_argument('--dataset_name', default=None, type=str,
                         help='The base folder of the dataset. The path must be'
                              ' specified relative to the repo base folder '
-                             '(i.e., iHannes_experiments folder))')
+                             '(i.e., prosthetic-grasping-experiments folder))')
 
     parser.add_argument('--from_features', default=False, action='store_true',
                         help='If enabled, pre-extracted features are used, and'
@@ -146,7 +146,7 @@ def parse_args():
     parser.add_argument('--log_dir', type=str, default=None,
                         help='Specify the folder name where to save logs and '
                              'model checkpoint. The complete path will be: '
-                             'iHannes_experiments/runs/log_dir. '
+                             'prosthetic-grasping-experiments/runs/log_dir. '
                              'If a folder with this name already exists, '
                              'it will be deleted and a new one is created.')
 

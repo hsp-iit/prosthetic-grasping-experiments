@@ -1,25 +1,25 @@
 '''
 launch command example:
 python3 src/tools/cnn/extract_features.py \
---batch_size 32 --source Wrist_d435 --dataset_type SingleSourceImage \
---input rgb --model cnn \
+--batch_size 1 --source Wrist_d435 \
+--input rgb --model cnn --dataset_type SingleSourceImage \
 --feature_extractor mobilenet_v2 --pretrain imagenet \
 --dataset_name iHannesDataset
 '''
 import sys
 import os
 import time
-import glob
 import math
+import pathlib
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torchvision import transforms
 
 sys.path.append(os.getcwd())
 from src.utils.pipeline import load_dataset, load_model
 from src.configs.arguments import parse_args
+from src.configs.conf import BASE_DIR
 
 
 def main(args):
@@ -27,11 +27,13 @@ def main(args):
         raise ValueError('Wrong argument: --from_features has no sense '
                          'for this pipeline')
 
-    modelname_dir = __file__.split('/')[-2]
-    if args.model != modelname_dir:
+    p = pathlib.Path(__file__)
+    try:
+        p.parts.index(args.model)
+    except:
         raise ValueError(
             'Wrong pipeline launched: this pipeline is intended for --model=={}'
-            .format(modelname_dir)
+            .format(os.path.basename(__file__))
         )
 
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -39,31 +41,17 @@ def main(args):
 
     args.dataset_type = 'SingleSourceVideo'
     dataloader = load_dataset(args)
-    # if args.test_type is None:
-    #     phases = ['train', 'val']
-    # else:
-    #     phases = ['test']
     phases = list(dataloader.keys())
+
+    # The training transform has randomizations, we do not want them since we 
+    # are extracting fixed features, therefore replace it with the test transform
+    base_dataset = dataloader[phases[0]].dataset.dataset
+    base_dataset._transform['train'] = base_dataset._transform['test']
 
     num_videos = 0
     for p in phases:
         num_videos += len(dataloader[p].dataset)
     print('Extracting features for {} videos'.format(num_videos))
-
-    if args.pretrain == 'imagenet':
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-        resize_side_size = 256
-        crop_size = 224
-        transform = transforms.Compose([
-            transforms.Resize(resize_side_size),
-            transforms.CenterCrop(crop_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=mean, std=std),
-        ])
-    else:
-        raise NotImplementedError('Not yet implemented for --pretrain {}'
-                                  .format(args.pretrain))
 
     model = load_model(args)
     model = model._feature_extractor
@@ -78,6 +66,8 @@ def main(args):
     model.eval()
     with torch.set_grad_enabled(False):
         for p in phases:
+            dataloader[p].dataset.dataset.train(p=='train')
+
             for batch_idx, (frames, _, _, _, _, videos_path) in \
                     enumerate(dataloader[p]):
 
@@ -100,10 +90,18 @@ def main(args):
                 features = features.cpu().numpy()
 
                 for sample_idx, v_p in enumerate(videos_path):
-                    new_video_dir = v_p.replace(
-                        '/frames/', '/features/{}/'.format(args.feature_extractor)
-                    )
-                    features_path = os.path.join(new_video_dir, 'features.npy')
+                    # Replace intermediate /frames/ folder 
+                    # with /features/feat_extr_name/ folders
+                    new_folders = os.path.join('features', args.feature_extractor)
+                    old_path = pathlib.Path(v_p)
+                    index_to_replace = old_path.parts.index('frames')
+                    new_path = os.path.join(*old_path.parts[:index_to_replace], 
+                                            new_folders, 
+                                            *old_path.parts[index_to_replace+1:])
+                    if not os.path.isdir(new_path):
+                        os.makedirs(new_path)
+
+                    features_path = os.path.join(new_path, 'features.npy')
 
                     np.save(features[sample_idx], features_path)
 
@@ -118,10 +116,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    BASE_DIR = 'iHannes_experiments'
-
     cur_base_dir = os.getcwd()
-    cur_base_dir = cur_base_dir.split('/')[-1]
+    cur_base_dir = os.path.basename(cur_base_dir)
     if cur_base_dir != BASE_DIR:
         raise Exception(
             'Wrong base dir, this file must be run from {} directory.'

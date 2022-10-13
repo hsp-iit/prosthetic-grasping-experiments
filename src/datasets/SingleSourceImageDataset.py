@@ -11,8 +11,9 @@ from src.configs import conf
 
 
 class SingleSourceImageDataset(Dataset):
+
     def __init__(self, args, transform):
-        self._is_synthetic = True if 'synthetic' in args.dataset_base_folder else False
+        self._is_synthetic = args.synthetic
         self._source = args.source
         self._data_info = args.data_info
         self._input = args.input
@@ -259,6 +260,10 @@ class SingleSourceImageDataset(Dataset):
         # (i.e, TRAIN, VAL, TEST), REMEMBER TO SET THE CORRECT MODE
         # (i.e., train() or eval()) IN ORDER TO CALL THE CORRECT TRANSFORM HERE
 
+        if self._train is None:
+            raise RuntimeError('You forgot to call train() or eval() method '
+                               'of the Dataset class. Call it before starting '
+                               'the pipeline.')
         if self._test_type in [None, 'test_same_person']:
             if not self._is_dataset_split:
                 raise RuntimeError('Dataset not split: you have to call '

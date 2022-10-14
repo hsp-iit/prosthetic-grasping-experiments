@@ -12,6 +12,7 @@ python3 src/tools/cnn/extract_features.py \
 --dataset_name ycb_50samples --synthetic --train_test_split_size 1.0 \
 --val_test_split_size 1.0
 '''
+from email.mime import base
 import sys
 import os
 import time
@@ -51,7 +52,9 @@ def main(args):
 
     # The training transform has randomizations, we do not want them since we 
     # are extracting fixed features, therefore replace it with the test transform
-    base_dataset = dataloader[phases[0]].dataset.dataset
+    base_dataset = dataloader[phases[0]].dataset
+    if args.test_type in [None, 'test_same_person']:
+        base_dataset = base_dataset.dataset
     if args.pretrain == 'imagenet':
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
@@ -90,7 +93,10 @@ def main(args):
     model.eval()
     with torch.set_grad_enabled(False):
         for p in phases:
-            dataloader[p].dataset.dataset.train(p=='train')
+            base_dataset = dataloader[p].dataset
+            if args.test_type in [None, 'test_same_person']:
+                base_dataset = base_dataset.dataset
+            base_dataset.train(p=='train')
 
             for batch_idx, (frames, _, _, _, _, videos_path) in \
                     enumerate(dataloader[p]):

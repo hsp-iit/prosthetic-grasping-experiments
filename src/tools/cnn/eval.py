@@ -52,14 +52,38 @@ def main(args):
                          'be located under the tensorboard log_dir of the '
                          'corresponding training. The path is intended '
                          'relative to the base repo folder '
-                         '(i.e., iHannes_experiments)')
+                         '(i.e., prosthetic-grasping-experiments).')
+
+    if args.synthetic:
+        print('Evaluating the synthetic-trained model on the real {} '
+              'test set of the {} dataset'
+              .format(args.test_type, 'iHannesDataset'))
+        # in order to change the dataset here in code, both 
+        # args.dataset_base_folder and args.dataset_name need to be adjusted
+        # (to understand why, see src/configs/arguments.py)
+
+        # replace the dataset_name folder of the
+        #  args_dataset_base_name folder path
+        old_path = pathlib.Path(args.dataset_base_folder)
+        idx_to_replace = old_path.parts.index(args.dataset_name)
+        new_path = os.path.join(*old_path.parts[:idx_to_replace],
+                                'iHannesDataset',
+                                *old_path.parts[idx_to_replace+1:])
+        args.dataset_base_folder = new_path
+        # we need to replace also synthetic with real folder
+        old_path = pathlib.Path(args.dataset_base_folder)
+        idx_to_replace = old_path.parts.index('synthetic')
+        new_path = os.path.join(*old_path.parts[:idx_to_replace],
+                                'real',
+                                *old_path.parts[idx_to_replace+1:])
+        args.dataset_base_folder = new_path
+        # change the dataset name
+        args.dataset_name = 'iHannesDataset'
 
     if args.dataset_name != 'iHannesDataset':
         raise ValueError('{} is not a valid value for --dataset_name argument.'
-                         'Currently, you can evaluate your model only on '
+                         ' Currently, you can evaluate your model only on '
                          'iHannesDataset test set.'.format(args.dataset_name))
-    # REMEMBER that if you change args.dataset_name, you have to change
-    # also args.dataset_base_folder accordingly, see src/configs/arguments.py
 
     p = pathlib.Path(__file__)
     try:
@@ -91,7 +115,6 @@ def main(args):
     # code below requires small changes.
     args.dataset_type = 'SingleSourceVideo'
     args.batch_size = 1
-
     dataloader = load_dataset(args)
 
     with open(os.path.join(writer.log_dir, 'log.txt'), 'w') as f:
@@ -122,8 +145,11 @@ def main(args):
 
     softmax = nn.Softmax(dim=1)
 
+    base_dataset = dataloader['test'].dataset
+    if args.test_type in [None, 'test_same_person']:
+        base_dataset = base_dataset.dataset
+    base_dataset.eval()
     model.eval()
-    dataloader['test'].dataset.dataset.eval()
     model = model.to(device)
     with torch.set_grad_enabled(False):
         accuracy = {granularity: 0 for granularity in ['perframe', 'video']}
@@ -136,7 +162,8 @@ def main(args):
         log_wrong_video_predictions = '=== VIDEO WRONG PREDICTIONS ===\n'
         total_start = time.time()
 
-        for batch_idx, (frames, perframe_grasp_type, perframe_preshape, perframe_instance, _, video_path) \
+        for batch_idx, (frames, perframe_grasp_type, perframe_preshape, 
+                        perframe_instance, _, video_path) \
                 in enumerate(dataloader['test'], start=1):
             batch_start = time.time()
 
@@ -247,12 +274,15 @@ def main(args):
                 video_grasp_type = torch.unique(perframe_grasp_type)
                 video_grasp_type = video_grasp_type[video_grasp_type != idx_no_grasp]
                 video_grasp_type = video_grasp_type.item()
+                video_grasp_type = args.data_info['grasp_types'][video_grasp_type]
                 video_preshape = torch.unique(perframe_preshape)
                 video_preshape = video_preshape[video_preshape != idx_no_grasp]
                 video_preshape = video_preshape.item()
+                video_preshape = args.data_info['preshapes'][video_preshape]
                 video_instance = torch.unique(perframe_instance)
                 video_instance = video_instance[video_instance != idx_no_grasp]
                 video_instance = video_instance.item()
+                video_instance = args.data_info['instances'][video_instance]
 
                 log = 'Video with GRASP_TYPE:{:<20} PRESHAPE:{:<20} ' \
                       'INSTANCE:{:<20}   predicted as   {}:{:<20}\n' \
@@ -288,7 +318,7 @@ def main(args):
 
             if granularity == 'perframe':
                 dataset_len = len(dataloader['test'].dataset) * \
-                    dataloader['test'].dataset._NUM_FRAMES_IN_VIDEO
+                    base_dataset._NUM_FRAMES_IN_VIDEO
             elif granularity == 'video':
                 dataset_len = len(dataloader['test'].dataset)
             else:
@@ -307,7 +337,7 @@ def main(args):
 
             log += 'PER-CLASS ACCURACY:\n'
             per_class_accuracies = per_class_accuracy(
-                targets_all[granularity], preds_all[granularity], np.arange(len(classes))
+                targets_all[granularity], preds_all[granularity], classes
             )
             for idx, c in enumerate(classes):
                 log += '{:<12}: {:<.1f}%\n'.format(c, per_class_accuracies[idx] * 100)
@@ -316,8 +346,8 @@ def main(args):
             log += 'CLASSIFICATION REPORT:\n'
             log += classification_report(targets_all[granularity],
                                          preds_all[granularity],
-                                         np.arange(len(classes)).tolist(),
-                                         classes)
+                                         labels=np.arange(len(classes)).tolist(),
+                                         target_names=classes)
             log += '\n\n'
 
             if args.output == 'preshape':
@@ -345,11 +375,13 @@ def main(args):
             plot_confusion_matrix(targets_all[granularity],
                                   preds_all[granularity],
                                   classes, normalize=True, writer=writer,
-                                  figsize=figsize)
+                                  figsize=figsize,
+                                  title=granularity + ' confusion matrix')
             plot_confusion_matrix(targets_all[granularity],
                                   preds_all[granularity],
                                   classes, normalize=False, writer=writer,
-                                  figsize=figsize)
+                                  figsize=figsize,
+                                  title=granularity + ' confusion matrix')
 
             if granularity == 'perframe':
                 scores_all['perframe'] = torch.cat(scores_all['perframe']).numpy()
@@ -367,6 +399,10 @@ def main(args):
                 log += log_wrong_video_predictions
 
             log += '\n\n\n\n'
+
+            with open(os.path.join(writer.log_dir, 'log.txt'), 'a+') as f:
+                print(log)
+                f.write(log + '\n\n')
 
 
 if __name__ == '__main__':

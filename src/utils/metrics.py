@@ -35,24 +35,31 @@ def accuracy(scores, targets, topk=(1, 3), divide_by_batch_size=False):
         return list_topk_accs  # list of topk accuracies for entire batch [topk1, topk2, ... etc]
 
 
-def per_class_accuracy(y_true, y_pred, num_classes):
-    cm = confusion_matrix(y_true, y_pred, num_classes)
+def per_class_accuracy(y_true, y_pred, classes):
+    cm = confusion_matrix(y_true, y_pred, labels=np.arange(len(classes)))
     cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     per_class_accuracies = cm.diagonal()
 
     return per_class_accuracies
 
 
-def per_instance_preshape_accuracy(y_true, y_pred, instances, data_info, figsize=(16, 10), show_image=True, writer=None, title=None):
+def per_instance_preshape_accuracy(y_true, y_pred, instances, data_info, 
+                                   figsize=(16, 10), show_image=True, 
+                                   writer=None, 
+                                   title='Per-instance-preshape accuracy'):
     preshapes_names = data_info['preshapes']
     instances_names = data_info['instances']
 
-    ground_truth_instance_preshape = np.zeros((len(data_info['preshapes']), len(data_info['instances'])))
+    ground_truth_instance_preshape = np.zeros(
+        (len(data_info['preshapes']), len(data_info['instances']))
+    )
     for i, idx_preshape in enumerate(y_true):
         idx_instance = instances[i]
         ground_truth_instance_preshape[idx_preshape][idx_instance] += 1
 
-    correct_instance_preshape = np.zeros((len(data_info['preshapes']), len(data_info['instances'])))
+    correct_instance_preshape = np.zeros(
+        (len(data_info['preshapes']), len(data_info['instances']))
+    )
     for i, idx_preshape in enumerate(y_pred):
         if y_pred[i] != y_true[i]:
             continue
@@ -62,9 +69,8 @@ def per_instance_preshape_accuracy(y_true, y_pred, instances, data_info, figsize
     accuracy_instance_preshape = correct_instance_preshape / ground_truth_instance_preshape
 
     figure = plt.figure(figsize=figsize)
-    plt.imshow(accuracy_instance_preshape, interpolation='nearest', cmap=plt.cm.Greys)
-    if title is None:
-        title = 'Per-instance-preshape accuracy,   tot. num. of videos: ' + str(len(y_true))
+    plt.imshow(accuracy_instance_preshape, interpolation='nearest', 
+               cmap=plt.cm.Greys)
     plt.title(title)
     plt.colorbar()
     x_tick_marks = np.arange(len(instances_names))
@@ -89,9 +95,11 @@ def per_instance_preshape_accuracy(y_true, y_pred, instances, data_info, figsize
         plt.show()
     plt.close()
     if writer is None:
-        raise ValueError('Unable to save confusion matrix to tensorboard: you have to pass the SummaryWriter '
-                         'object (via the writer parameter) responsible for writing to tensorboard.')
-    writer.add_figure('matrix/instance_preshape_accuracy', figure)
+        raise ValueError('Unable to save confusion matrix to tensorboard: '
+                         'you have to pass the SummaryWriter object (via '
+                         'the writer parameter) responsible for writing to'
+                         ' tensorboard.')
+    writer.add_figure('matrix/'+title.replace(' ', '_'), figure)
     writer.close()
 
 
@@ -111,16 +119,23 @@ def per_idx_frame_accuracy(y_true, y_pred, writer, output, num_videos, num_frame
     writer.close()
 
 
-def per_instance_grasp_type_accuracy(y_true, y_pred, instances, data_info, figsize=(10, 10), show_image=True, writer=None, title=None):
+def per_instance_grasp_type_accuracy(y_true, y_pred, instances, data_info, 
+                                     figsize=(10, 10), show_image=True,
+                                     writer=None, 
+                                     title='Per-instance-grasp_type accuracy'):
     grasp_types_names = data_info['grasp_types']
     instances_names = data_info['instances']
 
-    ground_truth_instance_grasp_type = np.zeros((len(data_info['grasp_types']), len(data_info['instances'])))
+    ground_truth_instance_grasp_type = np.zeros(
+        (len(data_info['grasp_types']), len(data_info['instances']))
+    )
     for i, idx_grasp_type in enumerate(y_true):
         idx_instance = instances[i]
         ground_truth_instance_grasp_type[idx_grasp_type][idx_instance] += 1
 
-    correct_instance_grasp_type = np.zeros((len(data_info['grasp_types']), len(data_info['instances'])))
+    correct_instance_grasp_type = np.zeros(
+        (len(data_info['grasp_types']), len(data_info['instances']))
+    )
     for i, idx_grasp_type in enumerate(y_pred):
         if y_pred[i] != y_true[i]:
             continue
@@ -131,8 +146,6 @@ def per_instance_grasp_type_accuracy(y_true, y_pred, instances, data_info, figsi
 
     figure = plt.figure(figsize=figsize)
     plt.imshow(accuracy_instance_grasp_type, interpolation='nearest', cmap=plt.cm.Greys)
-    if title is None:
-        title = 'Per-instance-grasp_type accuracy,   tot. num. of videos: ' + str(len(y_true))
     plt.title(title)
     plt.colorbar()
     x_tick_marks = np.arange(len(instances_names))
@@ -157,9 +170,11 @@ def per_instance_grasp_type_accuracy(y_true, y_pred, instances, data_info, figsi
         plt.show()
     plt.close()
     if writer is None:
-        raise ValueError('Unable to save confusion matrix to tensorboard: you have to pass the SummaryWriter '
-                         'object (via the writer parameter) responsible for writing to tensorboard.')
-    writer.add_figure('matrix/instance_grasp_type_accuracy', figure)
+        raise ValueError('Unable to save confusion matrix to tensorboard: '
+                         'you have to pass the SummaryWriter object (via '
+                         'the writer parameter) responsible for writing to '
+                         'tensorboard.')
+    writer.add_figure('matrix/'+title.replace(' ', '_'), figure)
     writer.close()
 
 
@@ -198,7 +213,7 @@ def plot_confusion_matrix(y_true,
                           show_image=True,
                           save_fig_to_tensorboard=True,
                           writer=None):
-    cm = confusion_matrix(y_true, y_pred, np.arange(len(classes)))
+    cm = confusion_matrix(y_true, y_pred, labels=np.arange(len(classes)))
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     figure = plt.figure(figsize=figsize)

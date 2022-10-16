@@ -10,7 +10,7 @@ class CNN_RNN(nn.Module):
         self._feature_extractor = None
 
         if args.from_features:
-            self._feature_extractor == nn.Identity()
+            self._feature_extractor = nn.Identity()
             # Get the feature vector dimension
             feat_vect_dim = None
             if args.feature_extractor == 'mobilenet_v2':

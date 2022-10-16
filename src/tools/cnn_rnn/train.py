@@ -316,7 +316,7 @@ def main(args):
             perframe_dataset_len = len(dataloader[phase].dataset) * \
                 dataloader[phase].dataset.dataset._NUM_FRAMES_IN_VIDEO
             writer.add_scalars(
-                'Perframe/Loss_epoch',
+                'Pervideo/Loss_epoch',
                 {phase: loss_epoch[phase] / len(dataloader[phase].dataset)},
                 epoch
             )
@@ -330,14 +330,14 @@ def main(args):
                 {phase: mAP_results[phase]['mAP_valid_cls'] * 100},
                 epoch
             )
-            writer.add_scalar(
+            writer.add_scalars(
                 'Pervideo/Accuracy_W_Backgr_epoch',
-                video_accuracy['w_backgr'][phase] / len(dataloader[phase].dataset) * 100,
+                {phase: video_accuracy['w_backgr'][phase] / len(dataloader[phase].dataset) * 100},
                 epoch
             )
-            writer.add_scalar(
+            writer.add_scalars(
                 'Pervideo/Accuracy_Wo_Backgr_epoch',
-                video_accuracy['w/o_backgr'][phase] / len(dataloader[phase].dataset) * 100,
+                {phase: video_accuracy['w/o_backgr'][phase] / len(dataloader[phase].dataset) * 100},
                 epoch
             )
         writer.close()

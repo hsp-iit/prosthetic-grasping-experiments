@@ -44,14 +44,38 @@ def main(args):
                          'be located under the tensorboard log_dir of the '
                          'corresponding training. The path is intended '
                          'relative to the base repo folder '
-                         '(i.e., iHannes_experiments)')
+                         '(i.e., prosthetic-grasping-experiments).')
+
+    if args.synthetic:
+        print('Evaluating the synthetic-trained model on the real {} '
+              'test set of the {} dataset'
+              .formt(args.test_type, 'iHannesDataset'))
+        # in order to change the dataset here in code, both 
+        # args.dataset_base_folder and args.dataset_name need to be adjusted
+        # (to understand why, see src/configs/arguments.py)
+
+        # replace the dataset_name folder of the
+        #  args_dataset_base_name folder path
+        old_path = pathlib.Path(args.dataset_base_folder)
+        idx_to_replace = old_path.parts.index(args.dataset_name)
+        new_path = os.path.join(*old_path.parts[:idx_to_replace],
+                                'iHannesDataset',
+                                *old_path.parts[idx_to_replace+1:])
+        args.dataset_base_folder = new_path
+        # we need to replace also synthetic with real folder
+        old_path = pathlib.Path(args.dataset_base_folder)
+        idx_to_replace = old_path.parts.index('synthetic')
+        new_path = os.path.join(*old_path.parts[:idx_to_replace],
+                                'real',
+                                *old_path.parts[idx_to_replace+1:])
+        args.dataset_base_folder = new_path
+        # change the dataset name
+        args.dataset_name = 'iHannesDataset'
 
     if args.dataset_name != 'iHannesDataset':
         raise ValueError('{} is not a valid value for --dataset_name argument.'
-                         'Currently, you can evaluate your model only on '
+                         ' Currently, you can evaluate your model only on '
                          'iHannesDataset test set.'.format(args.dataset_name))
-    # REMEMBER that if you change args.dataset_name, you have to change
-    # also args.dataset_base_folder accordingly, see src/configs/arguments.py
 
     p = pathlib.Path(__file__)
     try:
@@ -276,7 +300,7 @@ def main(args):
 
                 cv2.putText(
                     frame,
-                    '{:<15s}'.format(video_target),
+                    '{:<15s}'.format(perframe_target[idx]),
                     (int(W - W * 0.30), int(H * 0.15)),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
@@ -284,10 +308,13 @@ def main(args):
                     2
                 )
 
-                cv2.imshow('frame ' + str(idx), frame)
+                win_name = 'frame ' + str(idx)
+                cv2.namedWindow(win_name)
+                cv2.moveWindow(win_name, 40, 30)
+                cv2.imshow(win_name, frame)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-
+                
 
 if __name__ == '__main__':
     cur_base_dir = os.getcwd()

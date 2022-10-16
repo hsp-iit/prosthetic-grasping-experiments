@@ -191,7 +191,7 @@ def check_args(args):
         if not os.path.exists(args.checkpoint):
             raise ValueError('File {} not found. The path must be specified '
                              'relative to the repo base folder '
-                             '(i.e., iHannes_experiments folder)'
+                             '(i.e., prosthetic-grasping-experiments).'
                              .format(args.checkpoint))
         if args.log_dir is not None and \
                 args.log_dir != args.checkpoint.split('/')[-2]:
@@ -202,7 +202,7 @@ def check_args(args):
                              '--checkpoint runs/log_dir_name/best_model.pth '
                              '--log_dir log_dir_name. All the paths must be '
                              'specified relative to the repo base folder '
-                             '(i.e., iHannes_experiments).')
+                             '(i.e., prosthetic-grasping-experiments folder).')
 
     if args.source not in SOURCE:
         raise ValueError(

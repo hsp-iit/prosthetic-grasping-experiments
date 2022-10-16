@@ -89,6 +89,8 @@ def main(args):
     dataloader_val_video = load_dataset(appo_args)['val']
     dataloader['val'] = dataloader_val_video
 
+    phases = ['train', 'val']
+
     if args.synthetic:
         # In case of training on synthetic data, we do the validation both
         # on synthetic and real ihannes data.
@@ -147,8 +149,6 @@ def main(args):
     # background metric.
     best_val_video_accuracywobackgr = -1
     best_epoch = -1
-
-    phases = ['train', 'val']
 
     model = model.to(device)
     for epoch in range(start_epoch, start_epoch + args.epochs, 1):
@@ -295,7 +295,7 @@ def main(args):
                     mAP_results[phase]['mAP_valid_cls'] * 100,
                     ''.ljust(12)
                 )
-            else:
+            elif phase in ['val', 'val_real']:
                 str_results = '[{:<8}]  Loss: {:<3.4f}  ' \
                               'Per-frame_Accuracy: {:<3.1f}%  ' \
                               'Per-frame_mAP: {:<3.4f}%  ' \
@@ -312,6 +312,8 @@ def main(args):
                     video_accuracy['w/o_backgr'][phase] / len(dataloader[phase].dataset) * 100,
                     ''.ljust(12)
                 )
+            else: 
+                raise NotImplementedError
         log += 'Running time: {:3.1f}s'.format(end - start)
 
         if not args.suppress_epoch_print:
@@ -335,49 +337,41 @@ def main(args):
 
         for phase in phases:
             if phase == 'train':
-                writer.add_scalars(
-                    'Perframe/Loss_epoch',
-                    {phase: loss_epoch[phase] / len(dataloader[phase].dataset)},
-                    epoch
-                )
-                writer.add_scalars(
-                    'Perframe/Accuracy_epoch',
-                    {phase: perframe_accuracy_epoch[phase] / len(dataloader[phase].dataset) * 100},
-                    epoch
-                )
-                writer.add_scalars(
-                    'Perframe/mAP_epoch',
-                    {phase: mAP_results[phase]['mAP_valid_cls'] * 100},
-                    epoch
-                )
-            else:
+                perframe_dataset_len = len(dataloader[phase].dataset)
+            elif phase in ['val', 'val_real']:
                 perframe_dataset_len = len(dataloader[phase].dataset) * \
                     dataloader[phase].dataset.dataset._NUM_FRAMES_IN_VIDEO
+            else: 
+                raise NotImplementedError
+
+            writer.add_scalars(
+                'Perframe/Loss_epoch',
+                {phase: loss_epoch[phase] / perframe_dataset_len},
+                epoch
+            )
+            writer.add_scalars(
+                'Perframe/Accuracy_epoch',
+                {phase: perframe_accuracy_epoch[phase] / perframe_dataset_len * 100},
+                epoch
+            )
+            writer.add_scalars(
+                'Perframe/mAP_epoch',
+                {phase: mAP_results[phase]['mAP_valid_cls'] * 100},
+                epoch
+            )
+
+            if phase in ['val', 'val_real']:
                 writer.add_scalars(
-                    'Perframe/Loss_epoch',
-                    {phase: loss_epoch[phase] / perframe_dataset_len},
-                    epoch
-                )
-                writer.add_scalars(
-                    'Perframe/Accuracy_epoch',
-                    {phase: perframe_accuracy_epoch[phase] / perframe_dataset_len * 100},
-                    epoch
-                )
-                writer.add_scalars(
-                    'Perframe/mAP_epoch',
-                    {phase: mAP_results[phase]['mAP_valid_cls'] * 100},
-                    epoch
-                )
-                writer.add_scalar(
                     'Pervideo/Accuracy_W_Backgr_epoch',
-                    video_accuracy['w_backgr'][phase] / len(dataloader[phase].dataset) * 100,
+                    {phase: video_accuracy['w_backgr'][phase] / len(dataloader[phase].dataset) * 100},
                     epoch
                 )
-                writer.add_scalar(
+                writer.add_scalars(
                     'Pervideo/Accuracy_Wo_Backgr_epoch',
-                    video_accuracy['w/o_backgr'][phase] / len(dataloader[phase].dataset) * 100,
+                    {phase: video_accuracy['w/o_backgr'][phase] / len(dataloader[phase].dataset) * 100},
                     epoch
                 )
+
         writer.close()
 
         appo_phase = 'val_real' if args.synthetic else 'val'

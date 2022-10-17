@@ -345,7 +345,7 @@ class SingleSourceVideoDataset(Dataset):
                     metadata_row[10].replace('\n', '').split('_')[1]
                 )
 
-            metadata['wrist_ps'] = lines[-1].split('pronation-supination')[1]
+            metadata['wrist_ps'] = lines[-1].split('pronation-supination')[1].strip()
             assert metadata['wrist_ps'] in ('0', '90')
 
         # WARNING: Currently, training videos can be only 90 frames long,

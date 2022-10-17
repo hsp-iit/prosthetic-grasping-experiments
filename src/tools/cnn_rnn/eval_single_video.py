@@ -177,7 +177,7 @@ def main(args):
         with open(os.path.join(metadata_video_path, 'data.log')) as metadata_file:
             lines = metadata_file.readlines()
             grasp_type = lines[0].split(' ')[5]
-            wrist_ps = lines[-1].split('pronation-supination')[1]
+            wrist_ps = lines[-1].split('pronation-supination')[1].strip()
         preshape_wrist_ps = preshape + '_wps' + wrist_ps
         idx_grasp_type = args.data_info['grasp_types'].index(grasp_type)
         idx_preshape = args.data_info['preshapes'].index(preshape)

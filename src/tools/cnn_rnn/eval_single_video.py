@@ -300,7 +300,7 @@ def main(args):
 
                 cv2.putText(
                     frame,
-                    '{:<15s}'.format(perframe_target[idx]),
+                    '{:<15s}'.format(args.data_info[args.output+'s'][perframe_target[idx]]),
                     (int(W - W * 0.30), int(H * 0.15)),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
@@ -308,12 +308,10 @@ def main(args):
                     2
                 )
 
-                win_name = 'frame ' + str(idx)
-                cv2.namedWindow(win_name)
-                cv2.moveWindow(win_name, 40, 30)
-                cv2.imshow(win_name, frame)
+                cv2.imshow('frame', frame)
                 cv2.waitKey(0)
-                cv2.destroyAllWindows()
+
+            cv2.destroyAllWindows()
                 
 
 if __name__ == '__main__':

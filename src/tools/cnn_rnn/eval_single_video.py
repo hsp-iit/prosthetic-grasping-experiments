@@ -315,6 +315,9 @@ def main(args):
                 pred_wo_backgr = pred_wo_backgr[pred_wo_backgr != idx_no_grasp]
                 if len(pred_wo_backgr) == 0:
                     out_cls = 'no prediction'
+                    count_cls = np.array(first_pred_cls_list)
+                    count_cls = count_cls[count_cls == idx_no_grasp]
+                    count_cls = len(count_cls)
                 else:
                     pred_wo_backgr = torch.mode(torch.tensor(pred_wo_backgr))[0].item()
                     out_cls = args.data_info[args.output+'s'][pred_wo_backgr]

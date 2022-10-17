@@ -167,7 +167,8 @@ def main(args):
             dataloader[phase].dataset.dataset.train(is_training)
 
             with torch.set_grad_enabled(is_training):
-                for batch_idx, (frames, grasp_types, preshapes, instances, _, _) \
+                for batch_idx, (frames, grasp_types, preshapes, instances, _, 
+                                _, wrist_pss, preshape_wrist_pss) \
                         in enumerate(dataloader[phase], start=1):
 
                     if not is_training:
@@ -184,6 +185,8 @@ def main(args):
                         grasp_types = grasp_types.squeeze(0)
                         preshapes = preshapes.squeeze(0)
                         instances = instances.squeeze(0)
+                        wrist_pss = wrist_pss.squeeze(0)
+                        preshape_wrist_pss = preshape_wrist_pss.squeeze(0)
 
                     if args.output == 'grasp_type':
                         targets = grasp_types
@@ -191,6 +194,10 @@ def main(args):
                         targets = preshapes
                     elif args.output == 'instance':
                         targets = instances
+                    elif args.output == 'wrist_ps':
+                        targets = wrist_pss
+                    elif args.output == 'preshape_wrist_ps':
+                        targets = preshape_wrist_pss
                     else:
                         raise ValueError(
                             'Not yet implemented for --output {}'

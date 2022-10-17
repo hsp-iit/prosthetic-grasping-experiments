@@ -357,6 +357,8 @@ def build_args(args):
     args.data_info['preshapes'].insert(0, 'no_grasp')
     args.data_info['grasp_types'].insert(0, 'no_grasp')
     args.data_info['instances'].insert(0, 'no_grasp')
+    args.data_info['wrist_pss'].insert(0, 'no_grasp')
+    args.data_info['preshape_wrist_pss'].insert(0, 'no_grasp')
 
     args.num_classes = len(args.data_info[args.output + 's'])
 

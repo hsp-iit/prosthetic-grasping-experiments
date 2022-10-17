@@ -3,7 +3,7 @@ DATASET_TYPE = ['SingleSourceVideo',  'SingleSourceImage']
 SPLIT = ['random']
 
 INPUT = ['rgb']
-OUTPUT = ['preshape', 'grasp_type', 'instance']
+OUTPUT = ['preshape', 'grasp_type', 'instance', 'wrist_ps', 'preshape_wrist_ps']
 
 MODEL = ['cnn_rnn', 'cnn']
 FEATURE_EXTRACTOR = ['mobilenet_v2']

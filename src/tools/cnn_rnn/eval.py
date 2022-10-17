@@ -145,13 +145,27 @@ def main(args):
         preds_all = {granularity: [] for granularity in ['perframe', 'video']}
         instances_all = {granularity: [] for granularity in ['perframe', 'video']}
 
+        if args.output in ['wrist_ps', 'preshape_wrist_ps']:
+            FRAMES_THRESHOLD = 30
+            print('=== Evaluating on the first ' + str(FRAMES_THRESHOLD) + 
+                  ' frames of each video. === \n\n')
+
         log_wrong_video_predictions = '=== VIDEO WRONG PREDICTIONS ===\n'
         total_start = time.time()
 
         for batch_idx, (frames, perframe_grasp_type, perframe_preshape, 
-                        perframe_instance, _, video_path) \
+                        perframe_instance, _, video_path, perframe_wrist_ps,
+                        perframe_preshape_wrist_ps) \
                 in enumerate(dataloader['test'], start=1):
             batch_start = time.time()
+
+            if args.output in ['wrist_ps', 'preshape_wrist_ps']:
+                frames = frames[:FRAMES_THRESHOLD]
+                preframe_grasp_type = perframe_grasp_type[:FRAMES_THRESHOLD]
+                perframe_preshape = perframe_preshape_wrist_ps[:FRAMES_THRESHOLD]
+                perframe_instance = perframe_instance[:FRAMES_THRESHOLD]
+                perframe_wrist_ps = perframe_wrist_ps[:FRAMES_THRESHOLD]
+                perframe_preshape_wrist_ps = perframe_preshape_wrist_ps[:FRAMES_THRESHOLD]
 
             if args.output == 'grasp_type':
                 perframe_target = perframe_grasp_type
@@ -159,6 +173,10 @@ def main(args):
                 perframe_target = perframe_preshape
             elif args.output == 'instance':
                 perframe_target = perframe_instance
+            elif args.output == 'wrist_ps':
+                perframe_target = perframe_wrist_ps
+            elif args.output == 'preshape_wrist_ps':
+                perframe_target = perframe_preshape_wrist_ps
             else:
                 raise NotImplementedError(
                     'Not yet implemented for --output {}'
@@ -294,8 +312,9 @@ def main(args):
             classes = args.data_info[args.output+'s']
 
             if granularity == 'perframe':
-                dataset_len = len(dataloader['test'].dataset) * \
-                    base_dataset._NUM_FRAMES_IN_VIDEO
+                # dataset_len = len(dataloader['test'].dataset) * \
+                #     base_dataset._NUM_FRAMES_IN_VIDEO
+                dataset_len = len(dataloader['test'].dataset) * FRAMES_THRESHOLD
             elif granularity == 'video':
                 dataset_len = len(dataloader['test'].dataset)
             else:
@@ -347,7 +366,14 @@ def main(args):
                     title=title
                 )
             elif args.output == 'instance':
-                raise NotImplementedError
+                print('PLOT NOT IMPLEMENTED')
+                # raise NotImplementedError
+            elif args.output == 'wrist_ps':
+                print('PLOT NOT IMPLEMENTED')
+                # raise NotImplementedError()
+            elif args.output == 'preshape_wrist_ps':
+                print('PLOT NOT IMPLEMENTED')
+                # raise NotImplementedError()
             else:
                 raise NotImplementedError
 

@@ -332,7 +332,8 @@ class FeaturesSingleSourceImageDataset(Dataset):
         metadata = {}
         appo = video_path.replace(self._source, 'metadata').replace('rgb', 'seq')
         with open(os.path.join(appo, 'data.log')) as metadata_file:
-            metadata_row = metadata_file.readline()
+            lines = metadata_file.readlines()
+            metadata_row = lines[0]
             # sample row:
             #  frame_id timestamp_in timestamp_out category instance grasp_type preshape elevation approach ojbAzimuth objElevation
             metadata_row = metadata_row.split(' ')
@@ -347,6 +348,9 @@ class FeaturesSingleSourceImageDataset(Dataset):
                 metadata['objElevation'] = int(
                     metadata_row[10].replace('\n', '').split('_')[1]
                 )
+
+            metadata['wrist_ps'] = lines[-1].split('pronation-supination')[1].strip()
+            assert metadata['wrist_ps'] in ('0', '90')
 
         # WARNING: Currently, training videos can be only 90 frames long,
         # at 30 fps, hence 3 seconds video.
@@ -365,15 +369,24 @@ class FeaturesSingleSourceImageDataset(Dataset):
                 grasp_type = torch.tensor(idx_no_grasp)
                 preshape = torch.tensor(idx_no_grasp)
                 instance = torch.tensor(idx_no_grasp)
+                wrist_ps = torch.tensor(idx_no_grasp)
+                preshape_wrist_ps = torch.tensor(idx_no_grasp)
             else:
                 idx_grasp_type = self._data_info['grasp_types'].index(metadata['grasp_type'])
                 idx_preshape = self._data_info['preshapes'].index(metadata['preshape'])
                 idx_instance = self._data_info['instances'].index(metadata['instance'])
+                idx_wrist_ps = self._data_info['wrist_pss'].index(metadata['wrist_ps'])
+                idx_preshape_wrist_ps = self._data_info['preshape_wrist_pss'].index(
+                    metadata['preshape'] + '_wps' + metadata['wrist_ps']
+                )
                 grasp_type = torch.tensor(idx_grasp_type)
                 preshape = torch.tensor(idx_preshape)
                 instance = torch.tensor(idx_instance)
+                wrist_ps = torch.tensor(idx_wrist_ps)
+                preshape_wrist_ps = torch.tensor(idx_preshape_wrist_ps)
 
-        return frame_feature, grasp_type, preshape, instance, metadata, frame_path
+        return frame_feature, grasp_type, preshape, instance, metadata, \
+            frame_path, wrist_ps, preshape_wrist_ps
 
     def __len__(self):
         count_elems = 0

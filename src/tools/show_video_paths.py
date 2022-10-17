@@ -45,7 +45,7 @@ def main(args):
 
     for p in phases:
         print('===== {} ====='.format(p))
-        for _, grasp_type, _, _, _, video_path in dataloader[p]:
+        for _, grasp_type, _, _, _, video_path, _, _ in dataloader[p]:
             # video_path.shape (batch_size)
             for v_p, g_t in zip(video_path, grasp_type):
                 if args.category is not None and args.category not in v_p:

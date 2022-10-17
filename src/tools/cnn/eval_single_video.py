@@ -173,27 +173,40 @@ def main(args):
         metadata_video_path = video_path.replace(args.source, 'metadata')\
             .replace(args.input, 'seq')
         with open(os.path.join(metadata_video_path, 'data.log')) as metadata_file:
-            grasp_type = metadata_file.readline().split(' ')[5]
+            lines = metadata_file.readlines()
+            grasp_type = lines[0].split(' ')[5]
+            wrist_ps = lines[-1].split('pronation-supination')[1]
+        preshape_wrist_ps = preshape + '_wps' + wrist_ps
         idx_grasp_type = args.data_info['grasp_types'].index(grasp_type)
         idx_preshape = args.data_info['preshapes'].index(preshape)
         idx_instance = args.data_info['instances'].index(instance)
+        idx_wrist_ps = args.data_info['wrist_pss'].index(wrist_ps)
+        idx_preshape_wrist_ps = args.data_info['preshape_wrist_pss'].index(preshape_wrist_ps)
         idx_no_grasp = 0
         num_frames = len(frames)
         perframe_grasp_type = torch.tensor(idx_grasp_type).repeat(num_frames)
         perframe_preshape = torch.tensor(idx_preshape).repeat(num_frames)
         perframe_instance = torch.tensor(idx_instance).repeat(num_frames)
+        perframe_wrist_ps = torch.tensor(idx_wrist_ps).repeat(num_frames)
+        perframe_preshape_wrist_ps = torch.tensor(idx_preshape_wrist_ps).repeat(num_frames)
         if num_frames != 90:
             raise RuntimeError('The labeling scheme below works only with '
                                'videos 90 frames long')
         perframe_grasp_type[75:] = idx_no_grasp
         perframe_preshape[75:] = idx_no_grasp
         perframe_instance[75:] = idx_no_grasp
+        perframe_wrist_ps[75:] = idx_no_grasp
+        perframe_preshape_wrist_ps[75:] = idx_no_grasp
         if args.output == 'grasp_type':
             perframe_target = perframe_grasp_type
         elif args.output == 'preshape':
             perframe_target = perframe_preshape
         elif args.output == 'instance':
             perframe_target = perframe_instance
+        elif args.output == 'wrist_ps':
+            perframe_target = perframe_wrist_ps
+        elif args.output == 'preshape_wrist_ps':
+            perframe_target = perframe_preshape_wrist_ps
         else:
             raise ValueError(
                 'Not yet implemented for --output {}'
@@ -219,6 +232,10 @@ def main(args):
             video_target = preshape
         elif args.output == 'instance':
             video_target = instance
+        elif args.output == 'wrist_ps':
+            video_target = wrist_ps
+        elif args.output == 'preshape_wrist_ps':
+            video_target = preshape_wrist_ps
         else:
             raise ValueError(
                 'Not yet implemented for --output {}'

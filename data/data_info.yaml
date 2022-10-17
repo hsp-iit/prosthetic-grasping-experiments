@@ -145,6 +145,18 @@ preshapes:
   - pinch_no3
   - pinch_3
 
+wrist_pss:
+  - '0'
+  - '90'
+
+preshape_wrist_pss:
+  - lateral_no3_wps90
+  - power_no3_wps0
+  - power_no3_wps90
+  - pinch_no3_wps0
+  - pinch_3_wps0
+  - pinch_3_wps90
+
 grasptype_to_preshape:
   adducted_thumb: lateral_no3
   large_diameter: power_no3

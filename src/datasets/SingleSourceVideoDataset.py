@@ -328,7 +328,8 @@ class SingleSourceVideoDataset(Dataset):
         metadata = {}
         appo = video_path.replace(self._source, 'metadata').replace('rgb', 'seq')
         with open(os.path.join(appo, 'data.log')) as metadata_file:
-            metadata_row = metadata_file.readline()
+            lines = metadata_file.readlines()
+            metadata_row = lines[0]
             # sample row:
             #  frame_id timestamp_in timestamp_out category instance grasp_type preshape elevation approach ojbAzimuth objElevation
             metadata_row = metadata_row.split(' ')
@@ -344,8 +345,11 @@ class SingleSourceVideoDataset(Dataset):
                     metadata_row[10].replace('\n', '').split('_')[1]
                 )
 
+            metadata['wrist_ps'] = lines[-1].split('pronation-supination')[1]
+            assert metadata['wrist_ps'] in ('0', '90')
+
         # WARNING: Currently, training videos can be only 90 frames long,
-        # at 30 fps, hence 3 seconds video.
+        # at 30 fps, hence 3 seconds vitdeo.
         # Therefore the subsequent labeling is valid only for that video
         # frames length.
         # LABEL: 2.5s [grasp]  -  0.5s [no_grasp]
@@ -358,22 +362,31 @@ class SingleSourceVideoDataset(Dataset):
         idx_grasp_type = self._data_info['grasp_types'].index(metadata['grasp_type'])
         idx_preshape = self._data_info['preshapes'].index(metadata['preshape'])
         idx_instance = self._data_info['instances'].index(metadata['instance'])
+        idx_wrist_ps = self._data_info['wrist_pss'].index(metadata['wrist_ps'])
+        idx_preshape_wrist_ps = self._data_info['preshape_wrist_pss'].index(
+            metadata['preshape'] + '_wps' + metadata['wrist_ps']
+        )
         idx_no_grasp = 0
 
         grasp_type = torch.tensor(idx_grasp_type).repeat(num_frames)
         preshape = torch.tensor(idx_preshape).repeat(num_frames)
         instance = torch.tensor(idx_instance).repeat(num_frames)
+        wrist_ps = torch.tensor(idx_wrist_ps).repeat(num_frames)
+        preshape_wrist_ps = torch.tensor(idx_preshape_wrist_ps).repeat(num_frames)
 
         if self._NUM_FRAMES_IN_VIDEO == 90:
             grasp_type[75:] = idx_no_grasp
             preshape[75:] = idx_no_grasp
             instance[75:] = idx_no_grasp
+            wrist_ps[75:] = idx_no_grasp
+            preshape_wrist_ps[75:] = idx_no_grasp
         elif self._NUM_FRAMES_IN_VIDEO == 45:
             pass
         else:
             raise NotImplementedError
 
-        return frames_array, grasp_type, preshape, instance, metadata, video_path
+        return frames_array, grasp_type, preshape, instance, metadata, \
+            video_path, wrist_ps, preshape_wrist_ps
 
     def __len__(self):
         count_elems = 0

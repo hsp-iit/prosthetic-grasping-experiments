@@ -261,6 +261,7 @@ def main(args):
             print('Visualizing frames and predictions.\nPress a key to move '
                   'to the next frame')
 
+            first_pred_cls_list = []
             perframe_scores = perframe_scores.squeeze(0)
             for idx, f_p in enumerate(frames_path):
                 frame = cv2.imread(f_p)
@@ -297,7 +298,7 @@ def main(args):
                     (0, 0, 0),
                     2
                 )
-
+                # Ground-truth class
                 cv2.putText(
                     frame,
                     '{:<15s}'.format(args.data_info[args.output+'s'][perframe_target[idx]]),
@@ -305,6 +306,28 @@ def main(args):
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
                     (255, 0, 0),
+                    2
+                )
+                # Majority voting (w/o considering background class) until the 
+                # current frame
+                first_pred_cls_list.append(idxs_pred[0])
+                pred_wo_backgr = np.array(first_pred_cls_list) 
+                pred_wo_backgr = pred_wo_backgr[pred_wo_backgr != idx_no_grasp]
+                if len(pred_wo_backgr) == 0:
+                    out_cls = 'no prediction'
+                else:
+                    pred_wo_backgr = torch.mode(torch.tensor(pred_wo_backgr))[0].item()
+                    out_cls = args.data_info[args.output+'s'][pred_wo_backgr]
+                    count_cls = np.array(first_pred_cls_list)
+                    count_cls = count_cls[count_cls == pred_wo_backgr]
+                    count_cls = len(count_cls)
+                cv2.putText(
+                    frame,
+                    '{:<16s} {:2}/{:2}'.format(out_cls, count_cls, len(first_pred_cls_list)),
+                    (0, int(H * 0.75)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 255, 0) if out_cls == video_target else (0, 0, 255),
                     2
                 )
 

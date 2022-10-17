@@ -34,7 +34,9 @@ def main(args):
     if args.dataset_type != 'SingleSourceVideo':
         raise NotImplementedError('Wrong --dataset_type value. Currently '
                                   'only SingleSourceVideo is supported.')
-
+    if args.test and args.test_type is None:
+        raise ValueError('When using --test, you must specify also which test'
+                         ' set to pick with --test_type argument.')
     args.batch_size = 1
     dataloader = load_dataset(args)
     phases = list(dataloader.keys())

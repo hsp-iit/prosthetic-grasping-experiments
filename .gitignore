@@ -44,3 +44,5 @@ src/tools/Tutorial - images - Pytorch.ipynb
 src/tools/*/*/video/eval_single_video
 
 .idea
+
+.vscode

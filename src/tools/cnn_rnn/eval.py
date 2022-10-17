@@ -302,15 +302,15 @@ def main(args):
                 raise NotImplementedError
 
             if granularity == 'perframe':
-                log += 'ACCURACY: {:.1f}%\n\n'.format(
-                    accuracy['perframe'] / dataset_len
+                log += 'ACCURACY: {:.2f}%\n\n'.format(
+                    accuracy['perframe'] / dataset_len * 100
                 )
             elif granularity == 'video':
-                log += 'ACCURACY W/  BACKGR: {:.1f}%\n\n'.format(
-                    accuracy['video']['w_backgr'] / dataset_len
+                log += 'ACCURACY W/  BACKGR: {:.2f}%\n\n'.format(
+                    accuracy['video']['w_backgr'] / dataset_len * 100
                 )
-                log += 'ACCURACY W/O BACKGR: {:.1f}%\n\n'.format(
-                    accuracy['video']['w/o_backgr'] / dataset_len
+                log += 'ACCURACY W/O BACKGR: {:.2f}%\n\n'.format(
+                    accuracy['video']['w/o_backgr'] / dataset_len * 100
                 )
             else:
                 raise NotImplementedError

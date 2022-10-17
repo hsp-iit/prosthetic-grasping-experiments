@@ -325,12 +325,15 @@ def main(args):
                 raise NotImplementedError
 
             if granularity == 'perframe':
-                log += 'ACCURACY: {:.1f}%\n\n'.format(
-                    accuracy['perframe'] / dataset_len
+                log += 'ACCURACY: {:.2f}%\n\n'.format(
+                    accuracy['perframe'] / dataset_len * 100
                 )
             elif granularity == 'video':
-                log += 'ACCURACY: {:.1f}%\n\n'.format(
-                    accuracy['video']['w/o_backgr'] / dataset_len
+                log += 'ACCURACY W/  BACKGR: {:.2f}%\n\n'.format(
+                    accuracy['video']['w_backgr'] / dataset_len * 100
+                )
+                log += 'ACCURACY W/O BACKGR: {:.2f}%\n\n'.format(
+                    accuracy['video']['w/o_backgr'] / dataset_len * 100
                 )
             else:
                 raise NotImplementedError
@@ -340,7 +343,7 @@ def main(args):
                 targets_all[granularity], preds_all[granularity], classes
             )
             for idx, c in enumerate(classes):
-                log += '{:<12}: {:<.1f}%\n'.format(c, per_class_accuracies[idx] * 100)
+                log += '{:<12}: {:<.2f}%\n'.format(c, per_class_accuracies[idx] * 100)
             log += '\n\n'
 
             log += 'CLASSIFICATION REPORT:\n'

@@ -1,15 +1,15 @@
 '''
 launch command example:
-python3 src/tools/cnn/train.py --epochs 10 \
+python3 src/tools/cnn/train.py --epochs 5 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
 --from_features --dataset_name iHannesDataset
 python3 src/tools/cnn/train.py --epochs 5 \
---batch_size 256 --source Wrist_d435 --dataset_type SingleSourceImage \
+--batch_size 64 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
---from_features --dataset_name ycb_50samples --synthetic
+--from_features --dataset_name ycb_synthetic_dataset --synthetic
 '''
 import shutil
 import sys

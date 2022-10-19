@@ -72,6 +72,7 @@ def main(args):
         args.dataset_base_folder = new_path
         # change the dataset name
         args.dataset_name = 'iHannesDataset'
+        args.synthetic = False
 
     if args.dataset_name != 'iHannesDataset':
         raise ValueError('{} is not a valid value for --dataset_name argument.'

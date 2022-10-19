@@ -1,6 +1,6 @@
 '''
 launch command example:
-python3 src/tools/cnn/eval.py --epochs 10 \
+python3 src/tools/cnn/eval.py --epochs 5 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
@@ -8,10 +8,10 @@ python3 src/tools/cnn/eval.py --epochs 10 \
 --checkpoint runs/logs_folder_name/best_model.pth \
 --test_type test_different_velocity
 python3 src/tools/cnn/eval.py --epochs 5 \
---batch_size 256 --source Wrist_d435 --dataset_type SingleSourceImage \
+--batch_size 64 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
---from_features --dataset_name ycb_50samples --synthetic \
+--from_features --dataset_name ycb_synthetic_dataset --synthetic \
 --checkpoint runs/logs_folder_name/best_model.pth \
 --test_type test_different_velocity
 '''
@@ -79,6 +79,7 @@ def main(args):
         args.dataset_base_folder = new_path
         # change the dataset name
         args.dataset_name = 'iHannesDataset'
+        args.synthetic = False
 
     if args.dataset_name != 'iHannesDataset':
         raise ValueError('{} is not a valid value for --dataset_name argument.'

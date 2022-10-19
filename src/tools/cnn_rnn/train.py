@@ -9,7 +9,7 @@ python3 src/tools/cnn_rnn/train.py --epochs 10 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceVideo \
 --split random --input rgb --output preshape --model cnn_rnn --rnn_type lstm \
 --rnn_hidden_size 256 --feature_extractor mobilenet_v2 --pretrain imagenet \
---freeze_all_conv_layers --from_features --dataset_name ycb_50samples \
+--freeze_all_conv_layers --from_features --dataset_name ycb_synthetic_dataset \
 --synthetic
 '''
 import shutil

@@ -10,10 +10,11 @@ python3 src/tools/show_video_paths.py --from_features \
     --dataset_type SingleSourceVideo --model cnn_rnn --test --test_type test_seated
 python3 src/tools/show_video_paths.py --from_features \
     --freeze_all_conv_layers --dataset_name iHannesDataset \
-    --dataset_type SingleSourceVideo --model cnn_rnn --category dispenser
+    --dataset_type SingleSourceVideo --model cnn_rnn --category dispenser --train
 python3 src/tools/show_video_paths.py --from_features \
     --freeze_all_conv_layers --dataset_name iHannesDataset \
-    --dataset_type SingleSourceVideo --model cnn_rnn --instance 001_chips_can
+    --dataset_type SingleSourceVideo --model cnn_rnn --instance 001_chips_can \
+    --test --test_type test_same_person
 '''
 import os
 import sys

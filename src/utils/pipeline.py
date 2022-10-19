@@ -213,8 +213,6 @@ def check_arguments_matching(path_to_argument_file, sys_argv):
         if arg in ARGS_TO_IGNORE:
             continue
         if test_arg_2_value[arg] != value:
-            print(test_arg_2_value[arg], len(test_arg_2_value[arg]))
-            print(value, len(value))
             raise Exception('Unmatch argument value between training'
                             ' and test phases: argument '+arg+' has '
                             'value '+value.strip()+' at training time but '

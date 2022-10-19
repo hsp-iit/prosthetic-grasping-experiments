@@ -1,47 +1,19 @@
-data/iHannesDataset*
-data/labels_from_ground
-data/real
-data/synthetic
-results
-runs*
-runs_experiments/*
+data
+!data/data_info.yaml
+
+pge-venv
+
+runs
 plots
 stats
-appo
-run_tests.py
 
 __pycache__
-*/__pycache__
-*/*/__pycache__
-*/*/*/__pycache__
-*/*/*/*/__pycache__
-*/*/*/*/*/__pycache__
-*/*/*/*/*/*/__pycache__
-*/*/*/*/*/*/*/__pycache__
 
 *.jpg
-*/.jpg
-*/*/.jpg
-*/*/*/.jpg
-*/*/*/*/.jpg
-*/*/*/*/*/.jpg
-*/*/*/*/*/*/.jpg
-*/*/*/*/*/*/*/.jpg
 *.png
-*/.png
-*/*/.png
-*/*/*/.png
-*/*/*/*/.png
-*/*/*/*/*/.png
-*/*/*/*/*/*/.png
-*/*/*/*/*/*/*/.png
 
 *.sh
 *.txt
-
-src/tools/.ipynb_checkpoints/
-src/tools/Tutorial - images - Pytorch.ipynb
-src/tools/*/*/video/eval_single_video
 
 .idea
 

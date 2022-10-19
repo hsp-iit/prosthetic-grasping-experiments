@@ -9,7 +9,7 @@ python3 src/tools/cnn/extract_features.py \
 --batch_size 1 --source Wrist_d435 \
 --input rgb --model cnn --dataset_type SingleSourceImage \
 --feature_extractor mobilenet_v2 --pretrain imagenet \
---dataset_name ycb_50samples --synthetic --train_test_split_size 1.0 \
+--dataset_name ycb_synthetic_dataset --synthetic --train_test_split_size 1.0 \
 --val_test_split_size 1.0
 '''
 from email.mime import base

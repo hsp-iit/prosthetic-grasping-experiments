@@ -36,7 +36,7 @@ Clone project and install dependencies:
 git clone https://github.com/hsp-iit/prosthetic-grasping-experiments
 # create virtual environment and install dependencies
 cd prosthetic-grasping-experiments
-python3 -m venv pge-venv
+python3.8 -m venv pge-venv
 source pge-venv/bin/activate
 pip install -r requirements.txt
 
@@ -47,10 +47,9 @@ pip install torch==1.10.1+cu102 torchvision==0.11.2+cu102 torchaudio==0.10.1 -f 
 
 
 ## Dataset preparation
-Download the [realTODO]() and [syntheticTODO]() dataset
-``` bash
-wget xxx
-unzip xxx
+We provide a script to automatically download the [real](https://zenodo.org/record/7327150#.Y4M_O9LMJkg) and [synthetic](https://zenodo.org/record/7327516#.Y4M_PNLMJkg) datasets (specify your preferred folder path with `--out_dataset_folder`, in the example below it saves in the `datasets` folder located in the parent folder of this repository). The script also arrange the datasets according to the format required by our dataloaders.
+```
+python download_dataset.py --out_dataset_folder ../datasets --remove_zips
 ```   
 The `datasets` folder contains all the datasets: both the real (i.e. `iHannesDataset`) and the synthetic (i.e. `ycb_synthetic_dataset`) dataset. For each dataset, both the frames and the pre-extracted features using _mobilenet_v2_ (pre-trained on ImageNet) are available. <br>The `datasets` folder has the following macro-structure (i.e., path to the specific dataset folder):
 
@@ -72,7 +71,7 @@ datasets/
         ├── mobilenet_v2/
             ├── ycb_synthetic_dataset
 ```
-Each dataset (i.e., iHannesDataset, ycb_synthetic_dataset) has the following path to the frames/features:
+Each dataset (i.e., `iHannesDataset`, `ycb_synthetic_dataset`) has the following path to the frames/features:
 ``` bash
 DATASET_BASE_FOLDER/CATEGORY_NAME/OBJECT_NAME/PRESHAPE_NAME/Wrist_d435/rgb*
 ```
@@ -82,8 +81,8 @@ If you want to use our _dataloaders_, make sure that the above arrangement (both
 Create softlinks:
 ```bash
 cd prosthetic-grasping-experiments/data
-ln -s /YOUR_PATH_TO_DOWNLOADED_DATASET/datasets/real 
-ln -s /YOUR_PATH_TO_DOWNLOADED_DATASET/datasets/synthetic 
+ln -s /YOUR_PATH_TO_DATASETS_FOLDER/real 
+ln -s /YOUR_PATH_TO_DATASETS_FOLDER/synthetic 
 ```
 
 and the resulting structure is:
@@ -101,7 +100,7 @@ prosthetic-grasping-experiments/
 Pre-extracted features are already provided by downloading the datasets above. However, to extract features on your own, you can use:
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn/extract_features.py \
+python src/tools/cnn/extract_features.py \
 --batch_size 1 --source Wrist_d435 \
 --input rgb --model cnn --dataset_type SingleSourceImage \
 --feature_extractor mobilenet_v2 --pretrain imagenet \
@@ -118,7 +117,7 @@ When the training starts, a folder is created at the `prosthetic-grasping-experi
 **Example 1**: train the fully-connected classifier of _mobilenet_v2_ on the real dataset, starting from pre-extracted features:
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn/train.py --epochs 5 \
+python src/tools/cnn/train.py --epochs 5 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
@@ -129,7 +128,7 @@ python3 src/tools/cnn/train.py --epochs 5 \
 **Example 2**: same as above, but training on synthetic data (remember to add the `--synthetic` argument, otherwise a wrong path to the dataset is constructed):
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn/train.py --epochs 5 \
+python src/tools/cnn/train.py --epochs 5 \
 --batch_size 64 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
@@ -139,7 +138,7 @@ python3 src/tools/cnn/train.py --epochs 5 \
 **Example 3**: train the LSTM on the real dataset, starting from pre-extracted features:
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn_rnn/train.py --epochs 10 \
+python src/tools/cnn_rnn/train.py --epochs 10 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceVideo \
 --split random --input rgb --output preshape --model cnn_rnn --rnn_type lstm \
 --rnn_hidden_size 256 --feature_extractor mobilenet_v2 --pretrain imagenet \
@@ -150,7 +149,7 @@ python3 src/tools/cnn_rnn/train.py --epochs 10 \
 **Example 4**: fine-tune the whole network (i.e., use RGB frames instead of pre-extracted features) starting from the ImageNet weights:
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn/train.py --epochs 10 \
+python src/tools/cnn/train.py --epochs 10 \
 --batch_size 64 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet \
@@ -165,7 +164,7 @@ To test a model, copy and paste its running command used for training and substi
 **Example 1**: test the model on the _Same person_ test set:
 ```bash
 cd prosthetic-grasping-experiments
-python3 src/tools/cnn/eval.py --epochs 5 \
+python src/tools/cnn/eval.py --epochs 5 \
 --batch_size 32 --source Wrist_d435 --dataset_type SingleSourceImage \
 --split random --input rgb --output preshape --model cnn \
 --feature_extractor mobilenet_v2 --pretrain imagenet --freeze_all_conv_layers \
@@ -215,5 +214,5 @@ This repository is mantained by:
 
 ## Related links:
 - For further details about our synthetic data generation pipeline, please refer to our [paper](https://arxiv.org/abs/2203.09812) (specifically SEC. IV) and feel free to contact me: federico.vasile@iit.it
-- A demonstration video of our model trained on the synthetic data and tested on the Hannes prosthesis is available [hereTODO]()
-- A presentation video summarizing our work is available [hereTODO]()
+- A demonstration video of our model trained on the synthetic data and tested on the Hannes prosthesis is available [here](https://drive.google.com/file/d/16QcD1yprsNhxPc93EbLV_Mby2FlcJcJ7/view?usp=sharing)
+- A presentation video summarizing our work is available [here](https://drive.google.com/file/d/1qy1HoTzGodUyE1Ao1ezXsuYVNoqWn7Gg/view?usp=sharing)
